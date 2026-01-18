@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Settings,
   LayoutDashboard,
+  Newspaper,
 } from 'lucide-react';
 
 export default function Header() {
@@ -111,6 +112,11 @@ export default function Header() {
 
             <Link href="/value-my-robot" className="text-gray-700 hover:text-blue-600 font-medium">
               Value My Robot
+            </Link>
+
+            <Link href="/blog" className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 font-medium">
+              <Newspaper className="w-4 h-4" />
+              <span>News</span>
             </Link>
           </nav>
 
@@ -239,6 +245,13 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Research
+            </Link>
+            <Link
+              href="/blog"
+              className="block py-2 text-gray-700 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Robot News
             </Link>
             {isAuthenticated ? (
               <>
