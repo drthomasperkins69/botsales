@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Value My Robot | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .valuation-page {
+        padding: 3rem 0;
+    }
+
+    .valuation-hero {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 3rem;
+    }
+
+    .valuation-hero h1 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .valuation-hero p {
+        color: var(--gray-600);
+        font-size: 1.125rem;
+    }
+
+    .valuation-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .valuation-form-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+    }
+
+    .valuation-form-card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .valuation-result {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .result-placeholder {
+        text-align: center;
+        opacity: 0.8;
+    }
+
+    .result-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.6;
+    }
+
+    .result-content {
+        text-align: center;
+    }
+
+    .result-label {
+        font-size: 0.875rem;
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-price {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-range {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .result-based-on {
+        font-size: 0.875rem;
+        opacity: 0.7;
+    }
+
+    .result-actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .result-actions .btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--white);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .result-actions .btn:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .valuation-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="valuation-page">
+        <div class="valuation-hero">
+            <h1>What's Your Robot Worth?</h1>
+            <p>Get a free instant valuation based on current market data and similar listings.</p>
+        </div>
+
+        <div class="valuation-container">
+            <div class="valuation-form-card">
+                <h2>Enter Robot Details</h2>
+                <form action="{{ url_for('valuation_tool') }}" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="category" class="form-control" required>
+                            <option value="">Select category...</option>
+                            {% for value, label in categories %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Brand *</label>
+                        <select name="brand" class="form-control" required>
+                            <option value="">Select brand...</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand }}">{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="year" class="form-control" placeholder="e.g., 2023" min="2000" max="2030">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Condition *</label>
+                        <select name="condition" class="form-control" required>
+                            <option value="">Select condition...</option>
+                            {% for value, label in conditions %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                        <i class="fas fa-calculator"></i> Get Valuation
+                    </button>
+                </form>
+            </div>
+
+            <div class="valuation-result">
+                {% if estimate %}
+                <div class="result-content">
+                    <div class="result-label">Estimated Value</div>
+                    <div class="result-price">${{ "{:,.0f}".format(estimate.mid) }}</div>
+                    <div class="result-range">
+                        Range: ${{ "{:,.0f}".format(estimate.low) }} - ${{ "{:,.0f}".format(estimate.high) }}
+                    </div>
+                    <div class="result-based-on">
+                        Based on {{ estimate.count }} similar listings
+                    </div>
+                    <div class="result-actions">
+                        <a href="{{ url_for('create_listing') }}" class="btn">
+                            <i class="fas fa-plus"></i> Create Listing
+                        </a>
+                        <a href="{{ url_for('search') }}" class="btn">
+                            <i class="fas fa-search"></i> View Similar
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="result-placeholder">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Your Valuation</h3>
+                    <p>Fill in the form to get an instant estimate of your robot's value.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

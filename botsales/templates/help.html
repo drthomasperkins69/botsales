@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Help Center | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .help-page { padding: 3rem 0; }
+    .help-header { text-align: center; max-width: 600px; margin: 0 auto 3rem; }
+    .help-header h1 { font-size: 2rem; margin-bottom: 1rem; }
+
+    .help-search {
+        max-width: 500px;
+        margin: 0 auto 3rem;
+        position: relative;
+    }
+    .help-search input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+    }
+    .help-search i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+    }
+
+    .help-categories {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .help-category {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    .help-category:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    .help-category i {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    .help-category h3 { font-size: 1.125rem; margin-bottom: 0.5rem; }
+    .help-category p { color: var(--gray-500); font-size: 0.875rem; }
+
+    .faq-section { max-width: 800px; margin: 0 auto; }
+    .faq-section h2 { margin-bottom: 1.5rem; }
+
+    .faq-item {
+        background: var(--white);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+    }
+    .faq-question {
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .faq-question:hover { background: var(--gray-50); }
+    .faq-answer {
+        padding: 0 1.5rem 1rem;
+        color: var(--gray-600);
+        display: none;
+    }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open .faq-question i { transform: rotate(180deg); }
+
+    @media (max-width: 768px) {
+        .help-categories { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="help-page">
+        <div class="help-header">
+            <h1>How can we help?</h1>
+            <p class="text-muted">Find answers to common questions or get in touch with our support team.</p>
+        </div>
+
+        <div class="help-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search for help...">
+        </div>
+
+        <div class="help-categories">
+            <a href="#" class="help-category">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Buying</h3>
+                <p>How to search, contact sellers, and make purchases</p>
+            </a>
+            <a href="#" class="help-category">
+                <i class="fas fa-tag"></i>
+                <h3>Selling</h3>
+                <p>Create listings, manage ads, and connect with buyers</p>
+            </a>
+            <a href="#" class="help-category">
+                <i class="fas fa-user"></i>
+                <h3>Account</h3>
+                <p>Profile settings, notifications, and security</p>
+            </a>
+            <a href="#" class="help-category">
+                <i class="fas fa-credit-card"></i>
+                <h3>Payments</h3>
+                <p>Payment methods, refunds, and billing</p>
+            </a>
+            <a href="{{ url_for('safety') }}" class="help-category">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Safety</h3>
+                <p>Stay safe when buying and selling</p>
+            </a>
+            <a href="{{ url_for('contact') }}" class="help-category">
+                <i class="fas fa-headset"></i>
+                <h3>Contact Us</h3>
+                <p>Get in touch with our support team</p>
+            </a>
+        </div>
+
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How do I create a listing?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click the "Sell Robot" button in the header, fill in your robot's details, upload photos, and publish. Your listing will be live immediately.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>Is it free to list a robot?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Basic listings are completely free. We also offer featured listings with premium placement for a small fee.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How do I contact a seller?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click the "Contact Seller" button on any listing page. You'll need to be logged in to send messages.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How do I report a suspicious listing?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click the "Report" button on the listing page and select a reason. Our team reviews all reports within 24 hours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

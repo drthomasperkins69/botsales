@@ -1,0 +1,997 @@
+{% extends "base.html" %}
+
+{% block title %}BotSales - Australia's #1 Robot Marketplace | Buy & Sell Robots{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, var(--dark) 0%, #2D3748 100%);
+        color: var(--white);
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%230066FF" stroke-width="0.5" opacity="0.3"/><circle cx="50" cy="50" r="30" fill="none" stroke="%230066FF" stroke-width="0.5" opacity="0.2"/><circle cx="50" cy="50" r="20" fill="none" stroke="%230066FF" stroke-width="0.5" opacity="0.1"/></svg>') center/cover no-repeat;
+        opacity: 0.5;
+    }
+
+    .hero .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-content {
+        max-width: 700px;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .hero h1 span {
+        color: var(--primary);
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--gray-300);
+        margin-bottom: 2rem;
+    }
+
+    .hero-tagline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-full);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-tagline i {
+        color: var(--secondary);
+    }
+
+    /* Search Box */
+    .search-box {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-xl);
+        max-width: 800px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-input-wrapper {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 2.75rem;
+        font-size: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .search-select {
+        padding: 1rem;
+        font-size: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        background: var(--white);
+        min-width: 180px;
+    }
+
+    .search-btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .search-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        margin-top: 0.5rem;
+        display: none;
+        z-index: 100;
+    }
+
+    .search-suggestions.active {
+        display: block;
+    }
+
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--gray-700);
+    }
+
+    .suggestion-item:hover {
+        background: var(--gray-50);
+    }
+
+    .suggestion-item i {
+        position: static;
+        transform: none;
+        color: var(--gray-400);
+    }
+
+    /* Quick filters */
+    .quick-filters {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .quick-filter {
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        border-radius: var(--radius-full);
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        transition: all 0.2s;
+    }
+
+    .quick-filter:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    /* Stats bar */
+    .stats-bar {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1rem 0;
+    }
+
+    .stats-bar .container {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+
+    /* Category cards */
+    .categories-section {
+        padding: 4rem 0;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+
+    .section-link {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.5rem;
+    }
+
+    .category-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .category-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .category-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        background: var(--primary-light);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .category-card h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 0.25rem;
+    }
+
+    .category-card span {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+
+    /* Featured listings */
+    .featured-section {
+        padding: 4rem 0;
+        background: var(--gray-100);
+    }
+
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .listing-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .listing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .listing-image {
+        position: relative;
+        aspect-ratio: 4/3;
+        background: var(--gray-200);
+        overflow: hidden;
+    }
+
+    .listing-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .listing-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+    }
+
+    .listing-image-placeholder i {
+        font-size: 3rem;
+        color: var(--gray-400);
+    }
+
+    .listing-badges {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-featured {
+        background: var(--accent);
+        color: var(--white);
+    }
+
+    .badge-new {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .badge-urgent {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .listing-save {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 2rem;
+        height: 2rem;
+        background: var(--white);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-400);
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .listing-save:hover,
+    .listing-save.saved {
+        color: var(--danger);
+    }
+
+    .listing-content {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .listing-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .listing-price-negotiable {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+
+    .listing-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .listing-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+        margin-top: auto;
+    }
+
+    .listing-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Popular brands */
+    .brands-section {
+        padding: 4rem 0;
+    }
+
+    .brands-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+    }
+
+    .brand-card {
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .brand-card:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+
+    .brand-card h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.25rem;
+    }
+
+    .brand-card span {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    /* CTA section */
+    .cta-section {
+        padding: 4rem 0;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: var(--white);
+    }
+
+    .cta-content {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .cta-content h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-content p {
+        font-size: 1.125rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .cta-buttons .btn {
+        padding: 1rem 2rem;
+    }
+
+    .btn-white {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-white:hover {
+        background: var(--gray-100);
+        color: var(--primary);
+    }
+
+    /* Trust section */
+    .trust-section {
+        padding: 4rem 0;
+        background: var(--gray-50);
+    }
+
+    .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+
+    .trust-item {
+        text-align: center;
+    }
+
+    .trust-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        background: var(--primary-light);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .trust-item h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .trust-item p {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .category-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .listings-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .brands-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .trust-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        }
+        .search-form {
+            flex-direction: column;
+        }
+        .search-select {
+            width: 100%;
+        }
+        .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .listings-grid {
+            grid-template-columns: 1fr;
+        }
+        .brands-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .trust-grid {
+            grid-template-columns: 1fr;
+        }
+        .cta-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-tagline">
+                <i class="fas fa-bolt"></i>
+                <span>Australia's #1 Robot Marketplace</span>
+            </div>
+            <h1>Find Your Perfect <span>Robot</span> Companion</h1>
+            <p>Buy and sell robots from thousands of trusted sellers. From home helpers to industrial powerhouses.</p>
+
+            <div class="search-box">
+                <form action="{{ url_for('search') }}" method="GET" class="search-form">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="q" class="search-input" placeholder="Search by make, model, or keyword..." id="searchInput" autocomplete="off">
+                        <div class="search-suggestions" id="searchSuggestions"></div>
+                    </div>
+                    <select name="category" class="search-select">
+                        <option value="">All Categories</option>
+                        {% for value, label in categories %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                </form>
+                <div class="quick-filters">
+                    <a href="{{ url_for('search', category='domestic') }}" class="quick-filter">Home Robots</a>
+                    <a href="{{ url_for('search', category='companion') }}" class="quick-filter">Companion Bots</a>
+                    <a href="{{ url_for('search', brand='Boston Dynamics') }}" class="quick-filter">Boston Dynamics</a>
+                    <a href="{{ url_for('search', brand='iRobot') }}" class="quick-filter">iRobot</a>
+                    <a href="{{ url_for('search', condition='new') }}" class="quick-filter">New Only</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="container">
+        <div class="stat-item">
+            <div class="stat-value">10,000+</div>
+            <div class="stat-label">Active Listings</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">5,000+</div>
+            <div class="stat-label">Happy Buyers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">500+</div>
+            <div class="stat-label">Verified Dealers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">50+</div>
+            <div class="stat-label">Robot Brands</div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Browse by Category</h2>
+            <a href="{{ url_for('search') }}" class="section-link">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="category-grid">
+            <a href="{{ url_for('search', category='domestic') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <h3>Domestic & Home</h3>
+                <span>{{ category_counts.get('domestic', 0) }} listings</span>
+            </a>
+
+            <a href="{{ url_for('search', category='companion') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Companion Robots</h3>
+                <span>{{ category_counts.get('companion', 0) }} listings</span>
+            </a>
+
+            <a href="{{ url_for('search', category='industrial') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <h3>Industrial</h3>
+                <span>{{ category_counts.get('industrial', 0) }} listings</span>
+            </a>
+
+            <a href="{{ url_for('search', category='educational') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Educational</h3>
+                <span>{{ category_counts.get('educational', 0) }} listings</span>
+            </a>
+
+            <a href="{{ url_for('search', category='security') }}" class="category-card">
+                <div class="category-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Security</h3>
+                <span>{{ category_counts.get('security', 0) }} listings</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Listings -->
+{% if featured %}
+<section class="featured-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Robots</h2>
+            <a href="{{ url_for('search', featured_first='1') }}" class="section-link">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="listings-grid">
+            {% for listing in featured[:8] %}
+            <a href="{{ url_for('listing_detail', id=listing.id, slug=listing.slug) }}" class="listing-card">
+                <div class="listing-image">
+                    {% if listing.primary_image %}
+                        <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="{{ listing.title }}">
+                    {% else %}
+                        <div class="listing-image-placeholder">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                    {% endif %}
+                    <div class="listing-badges">
+                        {% if listing.is_featured %}
+                            <span class="badge badge-featured">Featured</span>
+                        {% endif %}
+                        {% if listing.condition == 'new' %}
+                            <span class="badge badge-new">New</span>
+                        {% endif %}
+                    </div>
+                    <button class="listing-save" onclick="event.preventDefault(); toggleSave({{ listing.id }}, this)">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="listing-content">
+                    <div class="listing-price">
+                        ${{ "{:,.0f}".format(listing.price) }}
+                        {% if listing.price_negotiable %}
+                            <span class="listing-price-negotiable">Negotiable</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="listing-title">{{ listing.title }}</h3>
+                    <div class="listing-meta">
+                        <span><i class="fas fa-tag"></i> {{ listing.brand or 'Unknown' }}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{ listing.state or listing.location or 'Australia' }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Listings -->
+{% if latest %}
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Latest Listings</h2>
+            <a href="{{ url_for('search', sort='newest') }}" class="section-link">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="listings-grid">
+            {% for listing in latest[:8] %}
+            <a href="{{ url_for('listing_detail', id=listing.id, slug=listing.slug) }}" class="listing-card">
+                <div class="listing-image">
+                    {% if listing.primary_image %}
+                        <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="{{ listing.title }}">
+                    {% else %}
+                        <div class="listing-image-placeholder">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                    {% endif %}
+                    <div class="listing-badges">
+                        {% if listing.is_urgent %}
+                            <span class="badge badge-urgent">Urgent</span>
+                        {% endif %}
+                        {% if listing.condition == 'new' %}
+                            <span class="badge badge-new">New</span>
+                        {% endif %}
+                    </div>
+                    <button class="listing-save" onclick="event.preventDefault(); toggleSave({{ listing.id }}, this)">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="listing-content">
+                    <div class="listing-price">
+                        ${{ "{:,.0f}".format(listing.price) }}
+                        {% if listing.price_negotiable %}
+                            <span class="listing-price-negotiable">Negotiable</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="listing-title">{{ listing.title }}</h3>
+                    <div class="listing-meta">
+                        <span><i class="fas fa-tag"></i> {{ listing.brand or 'Unknown' }}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{ listing.state or listing.location or 'Australia' }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Popular Brands -->
+{% if popular_brands %}
+<section class="brands-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Popular Brands</h2>
+        </div>
+
+        <div class="brands-grid">
+            {% for brand, count in popular_brands %}
+            <a href="{{ url_for('search', brand=brand) }}" class="brand-card">
+                <h4>{{ brand }}</h4>
+                <span>{{ count }} listings</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Ready to Sell Your Robot?</h2>
+            <p>Reach thousands of buyers across Australia. Create your free listing in minutes.</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('create_listing') }}" class="btn btn-white btn-lg">
+                    <i class="fas fa-plus"></i> Create Free Listing
+                </a>
+                <a href="{{ url_for('valuation_tool') }}" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,0.3); color: white;">
+                    <i class="fas fa-calculator"></i> Value My Robot
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="trust-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose BotSales?</h2>
+        </div>
+
+        <div class="trust-grid">
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure Transactions</h3>
+                <p>Pay through BotSales for secure, protected transactions with buyer guarantees.</p>
+            </div>
+
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3>Verified Sellers</h3>
+                <p>All dealers are verified. Look for the verified badge for trusted sellers.</p>
+            </div>
+
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>In-App Messaging</h3>
+                <p>Communicate safely through our platform with masked contact details.</p>
+            </div>
+
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>Robot History Reports</h3>
+                <p>Get detailed history reports to make informed buying decisions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search autocomplete
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    let debounceTimer;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            searchSuggestions.classList.remove('active');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(suggestions => {
+                    if (suggestions.length > 0) {
+                        searchSuggestions.innerHTML = suggestions.map(s => `
+                            <div class="suggestion-item" onclick="selectSuggestion('${s.text}')">
+                                <i class="fas fa-${s.type === 'brand' ? 'tag' : 'robot'}"></i>
+                                <span>${s.text}</span>
+                            </div>
+                        `).join('');
+                        searchSuggestions.classList.add('active');
+                    } else {
+                        searchSuggestions.classList.remove('active');
+                    }
+                });
+        }, 300);
+    });
+
+    searchInput.addEventListener('blur', () => {
+        setTimeout(() => searchSuggestions.classList.remove('active'), 200);
+    });
+
+    function selectSuggestion(text) {
+        searchInput.value = text;
+        searchSuggestions.classList.remove('active');
+    }
+
+    // Toggle save listing
+    function toggleSave(listingId, button) {
+        fetch(`/api/listing/${listingId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/login?next=' + window.location.pathname;
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                const icon = button.querySelector('i');
+                if (data.saved) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.classList.add('saved');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.classList.remove('saved');
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

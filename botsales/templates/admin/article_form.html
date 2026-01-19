@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Create Article | Admin | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+    <h1 class="mb-4">Create New Article</h1>
+
+    <form action="{{ url_for('create_article') }}" method="POST">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Excerpt</label>
+                    <textarea name="excerpt" class="form-control" rows="2" placeholder="Brief summary for previews..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select name="category" class="form-control" required>
+                        <option value="news">News</option>
+                        <option value="review">Review</option>
+                        <option value="guide">Buying Guide</option>
+                        <option value="comparison">Comparison</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Content *</label>
+                    <textarea name="content" class="form-control" rows="15" required placeholder="Write your article content here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-between">
+            <a href="{{ url_for('admin_articles') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Article</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

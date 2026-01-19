@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Robots | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <h1 class="mb-4">Saved Robots</h1>
+
+    {% if listings %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        {% for listing in listings %}
+        <a href="{{ url_for('listing_detail', id=listing.id, slug=listing.slug) }}" class="card" style="overflow: hidden; transition: transform 0.2s;">
+            <div style="aspect-ratio: 4/3; background: var(--gray-200);">
+                {% if listing.primary_image %}
+                    <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="{{ listing.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div style="font-size: 1.25rem; font-weight: 700; color: var(--gray-900);">${{ "{:,.0f}".format(listing.price) }}</div>
+                <h3 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin: 0.25rem 0 0.5rem;">{{ listing.title }}</h3>
+                <div style="font-size: 0.8125rem; color: var(--gray-500);">
+                    <span><i class="fas fa-tag"></i> {{ listing.brand or 'Unknown' }}</span>
+                    <span style="margin-left: 1rem;"><i class="fas fa-map-marker-alt"></i> {{ listing.state or 'Australia' }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-heart"></i>
+        <h3>No saved robots yet</h3>
+        <p>Click the heart icon on any listing to save it here.</p>
+        <a href="{{ url_for('search') }}" class="btn btn-primary">Browse Robots</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

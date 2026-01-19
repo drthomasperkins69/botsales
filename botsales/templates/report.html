@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Report Listing | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0; max-width: 600px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <h2 style="font-size: 1.25rem; margin: 0;">Report Listing</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Help us keep BotSales safe by reporting listings that violate our guidelines.</p>
+
+            <div style="display: flex; gap: 1rem; padding: 1rem; background: var(--gray-50); border-radius: var(--radius); margin-bottom: 1.5rem;">
+                <div style="width: 80px; height: 60px; background: var(--gray-200); border-radius: var(--radius); overflow: hidden;">
+                    {% if listing.primary_image %}
+                        <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <div>
+                    <strong>{{ listing.title[:50] }}...</strong>
+                    <div style="color: var(--gray-500); font-size: 0.875rem;">${{ "{:,.0f}".format(listing.price) }}</div>
+                </div>
+            </div>
+
+            <form action="{{ url_for('report_listing', id=listing.id) }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Reason for Report *</label>
+                    <select name="reason" class="form-control" required>
+                        <option value="">Select a reason...</option>
+                        <option value="spam">Spam or misleading</option>
+                        <option value="fraud">Suspected fraud or scam</option>
+                        <option value="duplicate">Duplicate listing</option>
+                        <option value="wrong_category">Wrong category</option>
+                        <option value="prohibited">Prohibited item</option>
+                        <option value="offensive">Offensive content</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Additional Details</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Please provide more details about your concern..."></textarea>
+                </div>
+
+                <div class="d-flex justify-between mt-4">
+                    <a href="{{ url_for('listing_detail', id=listing.id) }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Search Alerts | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+    <h1 class="mb-4">Search Alerts</h1>
+    <p class="text-muted mb-4">Get notified when new robots matching your criteria are listed.</p>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 style="font-size: 1rem; margin: 0;">Create New Alert</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('search_alerts') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Alert Name</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g., Boston Dynamics under $50k">
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-control">
+                            <option value="">Any Category</option>
+                            {% for value, label in categories %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <select name="brand" class="form-control">
+                            <option value="">Any Brand</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand }}">{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Min Price</label>
+                        <input type="number" name="min_price" class="form-control" placeholder="$">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Price</label>
+                        <input type="number" name="max_price" class="form-control" placeholder="$">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Alert Frequency</label>
+                    <select name="frequency" class="form-control">
+                        <option value="instant">Instant</option>
+                        <option value="daily">Daily Digest</option>
+                        <option value="weekly">Weekly Summary</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Alert</button>
+            </form>
+        </div>
+    </div>
+
+    {% if alerts %}
+    <h3 class="mb-3">Your Alerts</h3>
+    {% for alert in alerts %}
+    <div class="card mb-3">
+        <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong>{{ alert.name }}</strong>
+                <div style="font-size: 0.875rem; color: var(--gray-500);">{{ alert.frequency|title }} alerts</div>
+            </div>
+            <form action="{{ url_for('delete_alert', id=alert.id) }}" method="POST">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">You don't have any search alerts yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

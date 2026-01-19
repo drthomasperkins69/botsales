@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, var(--dark) 0%, #2D3748 100%);
+        color: var(--white);
+        padding: 5rem 0;
+        text-align: center;
+    }
+    .about-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .about-hero p { font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+    .about-section { padding: 4rem 0; }
+    .about-section.alt { background: var(--gray-50); }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3rem;
+        align-items: center;
+    }
+
+    .about-content h2 { font-size: 1.75rem; margin-bottom: 1rem; }
+    .about-content p { color: var(--gray-600); line-height: 1.8; margin-bottom: 1rem; }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        text-align: center;
+    }
+    .stat-item h3 { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+    .stat-item p { color: var(--gray-600); }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    .value-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        text-align: center;
+    }
+    .value-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        background: var(--primary-light);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    .value-card h3 { font-size: 1.125rem; margin-bottom: 0.5rem; }
+    .value-card p { color: var(--gray-600); font-size: 0.9375rem; }
+
+    @media (max-width: 768px) {
+        .about-grid, .stats-row, .values-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="about-hero">
+    <div class="container">
+        <h1>About BotSales</h1>
+        <p>Australia's leading marketplace for buying and selling robots. Buy It. Sell It. Love It.</p>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-content">
+                <h2>Our Mission</h2>
+                <p>At BotSales, we believe robots are the future of everyday life. Our mission is to make robot ownership accessible to everyone by creating a trusted marketplace where buyers and sellers can connect safely.</p>
+                <p>Whether you're looking for a home cleaning robot, an educational STEM kit for your kids, or an industrial automation solution, BotSales is the place to find it.</p>
+            </div>
+            <div>
+                <img src="https://via.placeholder.com/500x350" alt="Our Team" style="border-radius: var(--radius-lg); width: 100%;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section alt">
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-item">
+                <h3>10K+</h3>
+                <p>Active Listings</p>
+            </div>
+            <div class="stat-item">
+                <h3>50K+</h3>
+                <p>Happy Users</p>
+            </div>
+            <div class="stat-item">
+                <h3>500+</h3>
+                <p>Verified Dealers</p>
+            </div>
+            <div class="stat-item">
+                <h3>50+</h3>
+                <p>Robot Brands</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Values</h2>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Trust & Safety</h3>
+                <p>We verify sellers, protect transactions, and ensure a safe marketplace for everyone.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon"><i class="fas fa-users"></i></div>
+                <h3>Community First</h3>
+                <p>We're building a community of robot enthusiasts who share knowledge and passion.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon"><i class="fas fa-lightbulb"></i></div>
+                <h3>Innovation</h3>
+                <p>We continuously improve our platform with the latest technology and features.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

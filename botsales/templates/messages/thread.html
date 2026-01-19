@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Conversation with {{ other_user.full_name }} | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .thread-page {
+        padding: 2rem 0;
+    }
+
+    .thread-container {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 250px);
+        min-height: 500px;
+    }
+
+    .thread-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-btn {
+        color: var(--gray-500);
+        font-size: 1.25rem;
+    }
+
+    .thread-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .thread-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: var(--radius-full);
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .thread-user-info h2 {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .thread-user-info span {
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+    }
+
+    .thread-listing {
+        padding: 0.75rem 1.5rem;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .listing-thumb {
+        width: 60px;
+        height: 45px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--gray-200);
+    }
+
+    .listing-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .listing-info h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.125rem;
+    }
+
+    .listing-info h4 a {
+        color: var(--gray-900);
+    }
+
+    .listing-info span {
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+    }
+
+    .messages-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .message {
+        display: flex;
+        gap: 0.75rem;
+        max-width: 70%;
+    }
+
+    .message.sent {
+        flex-direction: row-reverse;
+        margin-left: auto;
+    }
+
+    .message-avatar {
+        width: 2rem;
+        height: 2rem;
+        border-radius: var(--radius-full);
+        background: var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .message.sent .message-avatar {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .message-bubble {
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-lg);
+        background: var(--gray-100);
+    }
+
+    .message.sent .message-bubble {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .message-text {
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    .message-time {
+        font-size: 0.6875rem;
+        color: var(--gray-400);
+        margin-top: 0.25rem;
+    }
+
+    .message.sent .message-time {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .message-form {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        gap: 1rem;
+    }
+
+    .message-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-lg);
+        resize: none;
+        font-size: 0.9375rem;
+    }
+
+    .message-input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .send-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .send-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .message {
+            max-width: 85%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="thread-page">
+        <div class="thread-container">
+            <div class="thread-header">
+                <a href="{{ url_for('messages') }}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="thread-user">
+                    <div class="thread-avatar">
+                        {{ other_user.username[0].upper() }}
+                    </div>
+                    <div class="thread-user-info">
+                        <h2>{{ other_user.full_name }}</h2>
+                        <span>{{ other_user.seller_type|title }} Seller</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if listing %}
+            <div class="thread-listing">
+                <div class="listing-thumb">
+                    {% if listing.primary_image %}
+                        <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="">
+                    {% endif %}
+                </div>
+                <div class="listing-info">
+                    <h4><a href="{{ url_for('listing_detail', id=listing.id) }}">{{ listing.title }}</a></h4>
+                    <span>${{ "{:,.0f}".format(listing.price) }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="messages-list" id="messagesList">
+                {% for msg in messages %}
+                <div class="message {{ 'sent' if msg.sender_id == current_user.id else 'received' }}">
+                    <div class="message-avatar">
+                        {{ msg.sender.username[0].upper() }}
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-text">{{ msg.body }}</div>
+                        <div class="message-time">{{ msg.created_at.strftime('%d %b, %H:%M') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form action="{{ url_for('send_message') }}" method="POST" class="message-form">
+                <input type="hidden" name="recipient_id" value="{{ other_user.id }}">
+                <input type="hidden" name="thread_id" value="{{ thread_id }}">
+                {% if listing %}
+                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                {% endif %}
+                <textarea name="body" class="message-input" rows="1" placeholder="Type a message..." required></textarea>
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Scroll to bottom of messages
+    const messagesList = document.getElementById('messagesList');
+    messagesList.scrollTop = messagesList.scrollHeight;
+
+    // Auto-resize textarea
+    const textarea = document.querySelector('.message-input');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+</script>
+{% endblock %}

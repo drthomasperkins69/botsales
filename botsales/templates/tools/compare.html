@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Robots | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .compare-page {
+        padding: 2rem 0;
+    }
+
+    .compare-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .compare-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .compare-table {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .compare-row {
+        display: grid;
+        grid-template-columns: 200px repeat({{ listings|length if listings else 3 }}, 1fr);
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .compare-row:last-child {
+        border-bottom: none;
+    }
+
+    .compare-cell {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .compare-label {
+        font-weight: 600;
+        color: var(--gray-600);
+        background: var(--gray-50);
+    }
+
+    .compare-header-cell {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--gray-50);
+    }
+
+    .compare-image {
+        width: 120px;
+        height: 90px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+        background: var(--gray-200);
+    }
+
+    .compare-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .compare-title {
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .compare-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .empty-compare {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+    }
+
+    .empty-compare i {
+        font-size: 4rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .empty-compare h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-compare p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="compare-page">
+        <div class="compare-header">
+            <h1>Compare Robots</h1>
+            <p class="text-muted">Compare specifications side by side to find the perfect robot.</p>
+        </div>
+
+        {% if listings and listings|length > 0 %}
+        <div class="compare-table">
+            <!-- Header Row -->
+            <div class="compare-row">
+                <div class="compare-cell compare-label"></div>
+                {% for listing in listings %}
+                <div class="compare-cell compare-header-cell">
+                    <div class="compare-image">
+                        {% if listing.primary_image %}
+                            <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="">
+                        {% endif %}
+                    </div>
+                    <div class="compare-title">{{ listing.title[:30] }}...</div>
+                    <div class="compare-price">${{ "{:,.0f}".format(listing.price) }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Data Rows -->
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Brand</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.brand or '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Model</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.model or '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Year</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.year or '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Condition</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.condition|replace('_', ' ')|title }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Category</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.category|replace('_', ' ')|title }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Height</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ (listing.height|string + ' cm') if listing.height else '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Weight</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ (listing.weight|string + ' kg') if listing.weight else '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Battery Life</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ (listing.battery_life|string + ' hours') if listing.battery_life else '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Location</div>
+                {% for listing in listings %}
+                <div class="compare-cell">{{ listing.state or listing.location or '-' }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="compare-row">
+                <div class="compare-cell compare-label">Action</div>
+                {% for listing in listings %}
+                <div class="compare-cell">
+                    <a href="{{ url_for('listing_detail', id=listing.id) }}" class="btn btn-primary btn-sm">View Listing</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-compare">
+            <i class="fas fa-balance-scale"></i>
+            <h3>No robots to compare</h3>
+            <p>Add robots to compare by clicking the compare button on listing pages.</p>
+            <a href="{{ url_for('search') }}" class="btn btn-primary">Browse Robots</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Messages | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-page {
+        padding: 2rem 0;
+    }
+
+    .messages-container {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        min-height: 600px;
+    }
+
+    .messages-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .messages-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .conversation-list {
+        list-style: none;
+    }
+
+    .conversation-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--gray-100);
+        transition: background 0.2s;
+    }
+
+    .conversation-item:hover {
+        background: var(--gray-50);
+    }
+
+    .conversation-item.unread {
+        background: var(--primary-light);
+    }
+
+    .conversation-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: var(--radius-full);
+        background: var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--gray-600);
+        flex-shrink: 0;
+    }
+
+    .conversation-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+    }
+
+    .conversation-name {
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+        color: var(--gray-400);
+    }
+
+    .conversation-listing {
+        font-size: 0.8125rem;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .conversation-preview {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .unread-badge {
+        width: 0.5rem;
+        height: 0.5rem;
+        background: var(--primary);
+        border-radius: var(--radius-full);
+        flex-shrink: 0;
+    }
+
+    .empty-messages {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-messages i {
+        font-size: 4rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .empty-messages h3 {
+        font-size: 1.25rem;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-messages p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="messages-page">
+        <div class="messages-container">
+            <div class="messages-header">
+                <h1>Messages</h1>
+            </div>
+
+            {% if conversations %}
+            <ul class="conversation-list">
+                {% for conv in conversations %}
+                <li>
+                    <a href="{{ url_for('message_thread', thread_id=conv.thread_id) }}" class="conversation-item {{ 'unread' if conv.unread > 0 }}">
+                        <div class="conversation-avatar">
+                            {{ conv.other_user.username[0].upper() if conv.other_user else '?' }}
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <span class="conversation-name">{{ conv.other_user.full_name if conv.other_user else 'Unknown User' }}</span>
+                                <span class="conversation-time">{{ conv.latest_message.created_at.strftime('%d %b') }}</span>
+                            </div>
+                            {% if conv.listing %}
+                            <div class="conversation-listing">
+                                <i class="fas fa-robot"></i> {{ conv.listing.title[:40] }}...
+                            </div>
+                            {% endif %}
+                            <div class="conversation-preview">{{ conv.latest_message.body[:80] }}...</div>
+                        </div>
+                        {% if conv.unread > 0 %}
+                        <div class="unread-badge"></div>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty-messages">
+                <i class="fas fa-envelope-open-text"></i>
+                <h3>No messages yet</h3>
+                <p>When you contact a seller or receive inquiries, they'll appear here.</p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary">Browse Robots</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Listings | Admin | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-page { padding: 2rem 0; }
+    .admin-nav {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: var(--white);
+        padding: 0.5rem;
+        border-radius: var(--radius-lg);
+    }
+    .admin-nav a { padding: 0.75rem 1.5rem; border-radius: var(--radius); color: var(--gray-600); font-weight: 500; }
+    .admin-nav a:hover { background: var(--gray-100); color: var(--gray-900); }
+    .admin-nav a.active { background: var(--primary); color: var(--white); }
+
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .filter-bar select {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+    }
+
+    .data-table { width: 100%; background: var(--white); border-radius: var(--radius-lg); overflow: hidden; }
+    .data-table th, .data-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--gray-100); }
+    .data-table th { background: var(--gray-50); font-weight: 600; font-size: 0.8125rem; color: var(--gray-600); text-transform: uppercase; }
+    .data-table tr:hover { background: var(--gray-50); }
+
+    .listing-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .listing-thumb { width: 50px; height: 40px; border-radius: var(--radius); overflow: hidden; background: var(--gray-200); }
+    .listing-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: var(--radius); font-size: 0.75rem; font-weight: 600; }
+    .status-active { background: #D1FAE5; color: #059669; }
+    .status-sold { background: var(--primary-light); color: var(--primary); }
+    .status-pending { background: #FEF3C7; color: #D97706; }
+    .status-rejected { background: #FEE2E2; color: #DC2626; }
+
+    .action-btns { display: flex; gap: 0.5rem; }
+    .action-btns .btn { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-page">
+        <h1 class="mb-4">Manage Listings</h1>
+
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+            <a href="{{ url_for('admin_users') }}">Users</a>
+            <a href="{{ url_for('admin_listings') }}" class="active">Listings</a>
+            <a href="{{ url_for('admin_reports') }}">Reports</a>
+            <a href="{{ url_for('admin_articles') }}">Articles</a>
+        </nav>
+
+        <div class="filter-bar">
+            <select onchange="window.location.href='{{ url_for('admin_listings') }}?status=' + this.value">
+                <option value="all" {{ 'selected' if current_status == 'all' }}>All Status</option>
+                <option value="active" {{ 'selected' if current_status == 'active' }}>Active</option>
+                <option value="pending" {{ 'selected' if current_status == 'pending' }}>Pending</option>
+                <option value="sold" {{ 'selected' if current_status == 'sold' }}>Sold</option>
+                <option value="rejected" {{ 'selected' if current_status == 'rejected' }}>Rejected</option>
+            </select>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Listing</th>
+                    <th>Seller</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in listings.items %}
+                <tr>
+                    <td>
+                        <div class="listing-cell">
+                            <div class="listing-thumb">
+                                {% if listing.primary_image %}
+                                    <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="">
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{{ url_for('listing_detail', id=listing.id) }}" style="font-weight: 500; color: var(--gray-900);">{{ listing.title[:40] }}...</a>
+                                <div style="font-size: 0.75rem; color: var(--gray-500);">{{ listing.category }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ listing.seller.username }}</td>
+                    <td>${{ "{:,.0f}".format(listing.price) }}</td>
+                    <td>
+                        <span class="status-badge status-{{ listing.status }}">{{ listing.status|title }}</span>
+                        {% if listing.is_featured %}<span class="status-badge" style="background: #FFEDD5; color: #EA580C;">Featured</span>{% endif %}
+                    </td>
+                    <td>{{ listing.created_at.strftime('%d %b %Y') }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <form action="{{ url_for('admin_toggle_featured', id=listing.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-sm {{ 'btn-warning' if listing.is_featured else 'btn-secondary' }}">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </form>
+                            <a href="{{ url_for('edit_listing', id=listing.id) }}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if listings.pages > 1 %}
+        <div class="pagination mt-4">
+            {% for page_num in listings.iter_pages() %}
+                {% if page_num %}
+                    <a href="{{ url_for('admin_listings', page=page_num, status=current_status) }}" class="{{ 'active' if page_num == listings.page }}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

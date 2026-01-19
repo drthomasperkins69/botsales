@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <nav class="breadcrumb mb-4">
+            <a href="{{ url_for('home') }}">Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('research') }}">Research</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ article.title[:30] }}...</span>
+        </nav>
+
+        <article>
+            <span style="display: inline-block; padding: 0.25rem 0.75rem; background: var(--primary-light); color: var(--primary); border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">
+                {{ article.category }}
+            </span>
+
+            <h1 style="font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem;">{{ article.title }}</h1>
+
+            <div style="display: flex; gap: 1.5rem; color: var(--gray-500); font-size: 0.9375rem; margin-bottom: 2rem;">
+                <span><i class="fas fa-user"></i> {{ article.author.full_name if article.author else 'BotSales Team' }}</span>
+                <span><i class="fas fa-calendar"></i> {{ article.published_at.strftime('%d %B %Y') if article.published_at else '' }}</span>
+                <span><i class="fas fa-eye"></i> {{ article.views }} views</span>
+            </div>
+
+            {% if article.featured_image %}
+            <img src="{{ url_for('uploaded_file', filename=article.featured_image) }}" style="width: 100%; border-radius: var(--radius-lg); margin-bottom: 2rem;">
+            {% endif %}
+
+            <div style="font-size: 1.125rem; line-height: 1.8; color: var(--gray-700);">
+                {{ article.content|safe }}
+            </div>
+        </article>
+
+        {% if related %}
+        <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--gray-200);">
+            <h3 class="mb-4">Related Articles</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                {% for item in related %}
+                <a href="{{ url_for('article_detail', slug=item.slug) }}" class="card" style="overflow: hidden;">
+                    <div style="aspect-ratio: 16/10; background: var(--gray-200);"></div>
+                    <div class="card-body">
+                        <h4 style="font-size: 1rem;">{{ item.title }}</h4>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

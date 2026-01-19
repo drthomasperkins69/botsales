@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category|title }} | Research | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <h1 class="mb-2">{{ category|title }}</h1>
+    <p class="text-muted mb-4">Browse all {{ category }} articles</p>
+
+    <nav style="display: flex; gap: 0.5rem; margin-bottom: 2rem;">
+        <a href="{{ url_for('research') }}" class="btn btn-secondary btn-sm">All</a>
+        <a href="{{ url_for('research_category', category='news') }}" class="btn btn-sm {{ 'btn-primary' if category == 'news' else 'btn-secondary' }}">News</a>
+        <a href="{{ url_for('research_category', category='review') }}" class="btn btn-sm {{ 'btn-primary' if category == 'review' else 'btn-secondary' }}">Reviews</a>
+        <a href="{{ url_for('research_category', category='guide') }}" class="btn btn-sm {{ 'btn-primary' if category == 'guide' else 'btn-secondary' }}">Guides</a>
+        <a href="{{ url_for('research_category', category='comparison') }}" class="btn btn-sm {{ 'btn-primary' if category == 'comparison' else 'btn-secondary' }}">Comparisons</a>
+    </nav>
+
+    {% if articles %}
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+        {% for article in articles %}
+        <a href="{{ url_for('article_detail', slug=article.slug) }}" class="card" style="overflow: hidden;">
+            <div style="aspect-ratio: 16/10; background: var(--gray-200);">
+                {% if article.featured_image %}
+                    <img src="{{ url_for('uploaded_file', filename=article.featured_image) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{ article.title }}</h3>
+                <div style="font-size: 0.8125rem; color: var(--gray-500);">{{ article.published_at.strftime('%d %b %Y') if article.published_at else '' }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-newspaper"></i>
+        <h3>No {{ category }} articles yet</h3>
+        <p>Check back soon for new content.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

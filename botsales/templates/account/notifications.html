@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Notification Settings | BotSales{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="settings-page" style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+        <h1 class="mb-4">Notification Settings</h1>
+
+        <nav class="settings-nav" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 1rem;">
+            <a href="{{ url_for('account_settings') }}" style="padding: 0.5rem 1rem; border-radius: var(--radius); color: var(--gray-600); font-weight: 500;">Profile</a>
+            <a href="{{ url_for('notification_settings') }}" style="padding: 0.5rem 1rem; border-radius: var(--radius); background: var(--primary-light); color: var(--primary); font-weight: 500;">Notifications</a>
+            <a href="{{ url_for('change_password') }}" style="padding: 0.5rem 1rem; border-radius: var(--radius); color: var(--gray-600); font-weight: 500;">Security</a>
+        </nav>
+
+        <form action="{{ url_for('notification_settings') }}" method="POST">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Email Notifications</h3>
+
+                    <label class="checkbox-group" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <input type="checkbox" name="email_notifications" {{ 'checked' if current_user.email_notifications }}>
+                        <div>
+                            <strong>Email Notifications</strong>
+                            <p style="color: var(--gray-500); font-size: 0.875rem; margin: 0;">Receive emails about messages, inquiries, and account updates</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">SMS Notifications</h3>
+
+                    <label class="checkbox-group" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <input type="checkbox" name="sms_notifications" {{ 'checked' if current_user.sms_notifications }}>
+                        <div>
+                            <strong>SMS Notifications</strong>
+                            <p style="color: var(--gray-500); font-size: 0.875rem; margin: 0;">Receive text messages for important updates (requires phone number)</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-flex justify-between">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Preferences</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

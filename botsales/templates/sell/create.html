@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}Create Listing | Sell Your Robot | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-page {
+        padding: 2rem 0;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        color: var(--gray-900);
+    }
+
+    .page-header p {
+        color: var(--gray-600);
+    }
+
+    .form-section {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--primary);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-row.three {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Image upload */
+    .image-upload-area {
+        border: 2px dashed var(--gray-300);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .image-upload-area:hover,
+    .image-upload-area.dragover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+
+    .image-upload-area i {
+        font-size: 2.5rem;
+        color: var(--gray-400);
+        margin-bottom: 1rem;
+    }
+
+    .image-upload-area h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .image-upload-area p {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+
+    .image-previews {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .image-preview {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--gray-100);
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-preview .remove-btn {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        background: var(--danger);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        font-size: 0.75rem;
+    }
+
+    .image-preview .primary-badge {
+        position: absolute;
+        bottom: 0.25rem;
+        left: 0.25rem;
+        padding: 0.125rem 0.5rem;
+        background: var(--primary);
+        color: var(--white);
+        border-radius: var(--radius);
+        font-size: 0.625rem;
+        font-weight: 600;
+    }
+
+    /* Photo tips */
+    .photo-tips {
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .photo-tips h5 {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .photo-tips ul {
+        font-size: 0.8125rem;
+        color: var(--gray-600);
+        padding-left: 1.25rem;
+    }
+
+    .photo-tips li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Price input */
+    .price-input-wrapper {
+        position: relative;
+    }
+
+    .price-input-wrapper .currency {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-500);
+        font-weight: 600;
+    }
+
+    .price-input-wrapper input {
+        padding-left: 2rem;
+    }
+
+    /* Form actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .form-actions .btn {
+        min-width: 150px;
+    }
+
+    /* Character counter */
+    .char-counter {
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--gray-400);
+        margin-top: 0.25rem;
+    }
+
+    .char-counter.warning {
+        color: var(--warning);
+    }
+
+    .char-counter.danger {
+        color: var(--danger);
+    }
+
+    @media (max-width: 768px) {
+        .form-row,
+        .form-row.three {
+            grid-template-columns: 1fr;
+        }
+
+        .image-previews {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="create-page">
+        <div class="page-header">
+            <h1>Create New Listing</h1>
+            <p>Fill in the details below to list your robot for sale.</p>
+        </div>
+
+        <form action="{{ url_for('create_listing') }}" method="POST" enctype="multipart/form-data" id="createForm">
+            <!-- Images Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-camera"></i>
+                    Photos
+                </h3>
+
+                <div class="image-upload-area" id="dropZone" onclick="document.getElementById('imageInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h4>Drag & drop photos or click to browse</h4>
+                    <p>Upload up to 10 photos (max 5MB each)</p>
+                    <input type="file" id="imageInput" name="images" multiple accept="image/*" style="display: none;">
+                </div>
+
+                <div class="image-previews" id="imagePreviews"></div>
+
+                <div class="photo-tips">
+                    <h5><i class="fas fa-lightbulb"></i> Tips for great photos</h5>
+                    <ul>
+                        <li>Use good lighting and a clean background</li>
+                        <li>Show the robot from multiple angles</li>
+                        <li>Include close-ups of any features or wear</li>
+                        <li>First photo will be the main listing image</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Basic Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Details
+                </h3>
+
+                <div class="form-group">
+                    <label class="form-label">Listing Title *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g., Boston Dynamics Spot - Excellent Condition" value="{{ form_data.title if form_data else '' }}" required maxlength="200">
+                    <div class="char-counter"><span id="titleCount">0</span>/200</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="category" class="form-control" required>
+                            <option value="">Select category...</option>
+                            {% for value, label in categories %}
+                                <option value="{{ value }}" {{ 'selected' if form_data and form_data.category == value }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Condition *</label>
+                        <select name="condition" class="form-control" required>
+                            <option value="">Select condition...</option>
+                            {% for value, label in conditions %}
+                                <option value="{{ value }}" {{ 'selected' if form_data and form_data.condition == value }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row three">
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <select name="brand" class="form-control" id="brandSelect">
+                            <option value="">Select brand...</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand }}" {{ 'selected' if form_data and form_data.brand == brand }}>{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="brandOtherGroup" style="display: none;">
+                        <label class="form-label">Other Brand</label>
+                        <input type="text" name="brand_other" class="form-control" placeholder="Enter brand name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" name="model" class="form-control" placeholder="e.g., Spot Explorer" value="{{ form_data.model if form_data else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="year" class="form-control" placeholder="2024" min="1990" max="2030" value="{{ form_data.year if form_data else '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea name="description" class="form-control" rows="6" placeholder="Describe your robot in detail. Include its features, history, any modifications, and reason for selling..." required minlength="50">{{ form_data.description if form_data else '' }}</textarea>
+                    <div class="char-counter"><span id="descCount">0</span> characters (minimum 50)</div>
+                </div>
+            </div>
+
+            <!-- Specifications -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    Specifications (Optional)
+                </h3>
+
+                <div class="form-row three">
+                    <div class="form-group">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" name="height" class="form-control" placeholder="e.g., 84" step="0.1" value="{{ form_data.height if form_data else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" name="weight" class="form-control" placeholder="e.g., 32" step="0.1" value="{{ form_data.weight if form_data else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Battery Life (hours)</label>
+                        <input type="number" name="battery_life" class="form-control" placeholder="e.g., 2" value="{{ form_data.battery_life if form_data else '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Connectivity</label>
+                    <input type="text" name="connectivity" class="form-control" placeholder="e.g., WiFi, Bluetooth, 4G LTE" value="{{ form_data.connectivity if form_data else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Features (comma separated)</label>
+                    <input type="text" name="features" class="form-control" placeholder="e.g., Voice control, Autonomous navigation, Camera" value="{{ form_data.features if form_data else '' }}">
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-dollar-sign"></i>
+                    Pricing
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Asking Price (AUD) *</label>
+                        <div class="price-input-wrapper">
+                            <span class="currency">$</span>
+                            <input type="number" name="price" class="form-control" placeholder="0.00" min="1" step="0.01" required value="{{ form_data.price if form_data else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; padding-top: 2rem;">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="negotiable" {{ 'checked' if form_data and form_data.negotiable }}>
+                            <span>Price is negotiable</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Location
+                </h3>
+
+                <div class="form-row three">
+                    <div class="form-group">
+                        <label class="form-label">Suburb/City</label>
+                        <input type="text" name="location" class="form-control" placeholder="e.g., Sydney" value="{{ form_data.location if form_data else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select name="state" class="form-control">
+                            <option value="">Select state...</option>
+                            <option value="NSW" {{ 'selected' if form_data and form_data.state == 'NSW' }}>New South Wales</option>
+                            <option value="VIC" {{ 'selected' if form_data and form_data.state == 'VIC' }}>Victoria</option>
+                            <option value="QLD" {{ 'selected' if form_data and form_data.state == 'QLD' }}>Queensland</option>
+                            <option value="WA" {{ 'selected' if form_data and form_data.state == 'WA' }}>Western Australia</option>
+                            <option value="SA" {{ 'selected' if form_data and form_data.state == 'SA' }}>South Australia</option>
+                            <option value="TAS" {{ 'selected' if form_data and form_data.state == 'TAS' }}>Tasmania</option>
+                            <option value="ACT" {{ 'selected' if form_data and form_data.state == 'ACT' }}>ACT</option>
+                            <option value="NT" {{ 'selected' if form_data and form_data.state == 'NT' }}>Northern Territory</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Postcode</label>
+                        <input type="text" name="postcode" class="form-control" placeholder="e.g., 2000" maxlength="4" value="{{ form_data.postcode if form_data else '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-section">
+                <div class="form-actions">
+                    <a href="{{ url_for('sell') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Create Listing
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image upload handling
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreviews = document.getElementById('imagePreviews');
+    let uploadedFiles = [];
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        for (let file of files) {
+            if (uploadedFiles.length >= 10) {
+                alert('Maximum 10 photos allowed');
+                break;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`${file.name} is too large (max 5MB)`);
+                continue;
+            }
+            if (!file.type.startsWith('image/')) {
+                continue;
+            }
+
+            uploadedFiles.push(file);
+            createPreview(file, uploadedFiles.length - 1);
+        }
+        updateFileInput();
+    }
+
+    function createPreview(file, index) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'image-preview';
+            div.innerHTML = `
+                <img src="${e.target.result}" alt="">
+                <button type="button" class="remove-btn" onclick="removeImage(${index})">×</button>
+                ${index === 0 ? '<span class="primary-badge">Primary</span>' : ''}
+            `;
+            imagePreviews.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeImage(index) {
+        uploadedFiles.splice(index, 1);
+        imagePreviews.innerHTML = '';
+        uploadedFiles.forEach((file, i) => createPreview(file, i));
+        updateFileInput();
+    }
+
+    function updateFileInput() {
+        const dt = new DataTransfer();
+        uploadedFiles.forEach(file => dt.items.add(file));
+        imageInput.files = dt.files;
+    }
+
+    // Brand "Other" handling
+    const brandSelect = document.getElementById('brandSelect');
+    const brandOtherGroup = document.getElementById('brandOtherGroup');
+
+    brandSelect.addEventListener('change', () => {
+        brandOtherGroup.style.display = brandSelect.value === 'Other' ? 'block' : 'none';
+    });
+
+    // Character counters
+    const titleInput = document.querySelector('input[name="title"]');
+    const descInput = document.querySelector('textarea[name="description"]');
+
+    titleInput.addEventListener('input', () => {
+        document.getElementById('titleCount').textContent = titleInput.value.length;
+    });
+
+    descInput.addEventListener('input', () => {
+        const count = descInput.value.length;
+        const counter = document.getElementById('descCount');
+        counter.textContent = count;
+        counter.parentElement.className = 'char-counter' + (count < 50 ? ' danger' : '');
+    });
+</script>
+{% endblock %}

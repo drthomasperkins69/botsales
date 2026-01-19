@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.full_name }} | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
+        <!-- Profile sidebar -->
+        <div>
+            <div class="card">
+                <div class="card-body text-center">
+                    <div style="width: 100px; height: 100px; margin: 0 auto 1rem; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--primary); font-weight: 700;">
+                        {% if profile_user.avatar %}
+                            <img src="{{ url_for('uploaded_file', filename=profile_user.avatar) }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                            {{ profile_user.username[0].upper() }}
+                        {% endif %}
+                    </div>
+                    <h2 style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ profile_user.full_name }}</h2>
+                    <p style="color: var(--gray-500); font-size: 0.875rem;">@{{ profile_user.username }}</p>
+
+                    <div style="display: flex; justify-content: center; gap: 0.5rem; margin: 1rem 0;">
+                        <span style="padding: 0.25rem 0.75rem; background: var(--gray-100); border-radius: var(--radius-full); font-size: 0.8125rem;">
+                            {{ profile_user.seller_type|title }}
+                        </span>
+                        {% if profile_user.is_verified %}
+                        <span style="padding: 0.25rem 0.75rem; background: #D1FAE5; color: #059669; border-radius: var(--radius-full); font-size: 0.8125rem;">
+                            <i class="fas fa-check"></i> Verified
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if profile_user.rating %}
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.25rem; color: var(--warning); margin-bottom: 1rem;">
+                        {% for i in range(5) %}
+                            <i class="fas fa-star{% if i >= profile_user.rating|int %}-half-alt{% endif %}"></i>
+                        {% endfor %}
+                        <span style="color: var(--gray-600); margin-left: 0.5rem;">{{ "%.1f"|format(profile_user.rating) }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if profile_user.bio %}
+                    <p style="color: var(--gray-600); font-size: 0.9375rem; margin-top: 1rem;">{{ profile_user.bio }}</p>
+                    {% endif %}
+
+                    <div style="border-top: 1px solid var(--gray-200); margin-top: 1rem; padding-top: 1rem; font-size: 0.875rem; color: var(--gray-500);">
+                        {% if profile_user.location or profile_user.state %}
+                        <p><i class="fas fa-map-marker-alt"></i> {{ profile_user.location }}{% if profile_user.state %}, {{ profile_user.state }}{% endif %}</p>
+                        {% endif %}
+                        <p><i class="fas fa-calendar"></i> Member since {{ profile_user.created_at.strftime('%B %Y') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listings -->
+        <div>
+            <h3 class="mb-3">Listings by {{ profile_user.full_name }} ({{ listings|length }})</h3>
+
+            {% if listings %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                {% for listing in listings %}
+                <a href="{{ url_for('listing_detail', id=listing.id, slug=listing.slug) }}" class="card" style="overflow: hidden;">
+                    <div style="aspect-ratio: 4/3; background: var(--gray-200);">
+                        {% if listing.primary_image %}
+                            <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div style="font-size: 1.125rem; font-weight: 700;">${{ "{:,.0f}".format(listing.price) }}</div>
+                        <h4 style="font-size: 0.9375rem; color: var(--gray-700); margin: 0.25rem 0;">{{ listing.title[:40] }}...</h4>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-robot"></i>
+                <p>No active listings</p>
+            </div>
+            {% endif %}
+
+            {% if reviews %}
+            <h3 class="mt-5 mb-3">Reviews</h3>
+            {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>{{ review.reviewer.full_name }}</strong>
+                        <span style="color: var(--warning);">
+                            {% for i in range(review.rating) %}<i class="fas fa-star"></i>{% endfor %}
+                        </span>
+                    </div>
+                    <p style="color: var(--gray-600);">{{ review.comment }}</p>
+                    <small style="color: var(--gray-400);">{{ review.created_at.strftime('%d %b %Y') }}</small>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

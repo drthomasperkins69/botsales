@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 6rem 0; text-align: center;">
+    <i class="fas fa-robot" style="font-size: 5rem; color: var(--gray-300); margin-bottom: 1.5rem;"></i>
+    <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">404</h1>
+    <h2 style="font-size: 1.5rem; color: var(--gray-700); margin-bottom: 1rem;">Page Not Found</h2>
+    <p style="color: var(--gray-500); margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+        Oops! The robot you're looking for seems to have wandered off. The page doesn't exist or has been moved.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Go Home
+        </a>
+        <a href="{{ url_for('search') }}" class="btn btn-secondary">
+            <i class="fas fa-search"></i> Browse Robots
+        </a>
+    </div>
+</div>
+{% endblock %}

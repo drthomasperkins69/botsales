@@ -1,0 +1,997 @@
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }} - ${{ "{:,.0f}".format(listing.price) }} | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .listing-page {
+        padding: 2rem 0;
+    }
+
+    .listing-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .breadcrumb a {
+        color: var(--gray-500);
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary);
+    }
+
+    /* Image Gallery */
+    .gallery {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .gallery-main {
+        position: relative;
+        aspect-ratio: 16/10;
+        background: var(--gray-100);
+    }
+
+    .gallery-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .gallery-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .gallery-placeholder i {
+        font-size: 5rem;
+        color: var(--gray-300);
+    }
+
+    .gallery-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.5rem;
+        height: 2.5rem;
+        background: var(--white);
+        border: none;
+        border-radius: var(--radius-full);
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-700);
+    }
+
+    .gallery-nav:hover {
+        background: var(--gray-100);
+    }
+
+    .gallery-nav.prev {
+        left: 1rem;
+    }
+
+    .gallery-nav.next {
+        right: 1rem;
+    }
+
+    .gallery-badges {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .badge {
+        padding: 0.375rem 1rem;
+        border-radius: var(--radius-full);
+        font-size: 0.8125rem;
+        font-weight: 600;
+    }
+
+    .badge-featured {
+        background: var(--accent);
+        color: var(--white);
+    }
+
+    .badge-new {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .badge-sold {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .gallery-thumbs {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        overflow-x: auto;
+    }
+
+    .gallery-thumb {
+        width: 80px;
+        height: 60px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        flex-shrink: 0;
+    }
+
+    .gallery-thumb.active {
+        border-color: var(--primary);
+    }
+
+    .gallery-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Listing Details */
+    .listing-details {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .listing-details h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+    }
+
+    .listing-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: 1rem;
+    }
+
+    .listing-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .listing-meta-item i {
+        color: var(--gray-400);
+    }
+
+    /* Specs Grid */
+    .specs-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .specs-section h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .spec-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .spec-label {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+
+    .spec-value {
+        font-weight: 600;
+        color: var(--gray-900);
+        font-size: 0.875rem;
+    }
+
+    /* Description */
+    .description-section h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .description-text {
+        color: var(--gray-700);
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    /* Features */
+    .features-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .feature-tag {
+        padding: 0.375rem 0.75rem;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        font-size: 0.8125rem;
+    }
+
+    /* Contact Card */
+    .contact-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .price-section {
+        text-align: center;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+    }
+
+    .price-main {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--gray-900);
+    }
+
+    .price-negotiable {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .price-original {
+        font-size: 1rem;
+        color: var(--gray-400);
+        text-decoration: line-through;
+        margin-top: 0.25rem;
+    }
+
+    .price-discount {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--secondary);
+        color: var(--white);
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    /* Seller Info */
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        margin-bottom: 1.5rem;
+    }
+
+    .seller-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: var(--radius-full);
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: var(--radius-full);
+    }
+
+    .seller-details h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+
+    .seller-details h4 a {
+        color: inherit;
+    }
+
+    .seller-type {
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .seller-type .verified {
+        color: var(--info);
+    }
+
+    .seller-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.8125rem;
+        color: var(--warning);
+        margin-top: 0.25rem;
+    }
+
+    /* Contact Actions */
+    .contact-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .contact-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.875rem;
+    }
+
+    /* Safety message */
+    .safety-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--primary-light);
+        border-radius: var(--radius);
+        margin-top: 1.5rem;
+        font-size: 0.8125rem;
+        color: var(--gray-700);
+    }
+
+    .safety-message i {
+        color: var(--primary);
+        margin-top: 0.125rem;
+    }
+
+    /* Actions bar */
+    .listing-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .action-btn.saved {
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    /* Similar listings */
+    .similar-section {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+    }
+
+    .similar-section h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .similar-card {
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--gray-50);
+    }
+
+    .similar-image {
+        aspect-ratio: 4/3;
+        background: var(--gray-200);
+    }
+
+    .similar-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .similar-content {
+        padding: 0.75rem;
+    }
+
+    .similar-price {
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+
+    .similar-title {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Report modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .modal {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-400);
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+        .listing-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-card {
+            position: static;
+        }
+
+        .similar-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .specs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .similar-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="listing-page">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="{{ url_for('home') }}">Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('search') }}">Buy</a>
+            <i class="fas fa-chevron-right"></i>
+            {% if listing.category %}
+            <a href="{{ url_for('search', category=listing.category) }}">{{ listing.category|replace('_', ' ')|title }}</a>
+            <i class="fas fa-chevron-right"></i>
+            {% endif %}
+            <span>{{ listing.title[:50] }}...</span>
+        </nav>
+
+        <div class="listing-grid">
+            <!-- Left Column -->
+            <div class="listing-main">
+                <!-- Image Gallery -->
+                <div class="gallery">
+                    <div class="gallery-main" id="galleryMain">
+                        {% if listing.primary_image %}
+                            <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="{{ listing.title }}" id="mainImage">
+                        {% else %}
+                            <div class="gallery-placeholder">
+                                <i class="fas fa-robot"></i>
+                                <span class="text-muted">No images available</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="gallery-badges">
+                            {% if listing.is_featured %}
+                                <span class="badge badge-featured">Featured</span>
+                            {% endif %}
+                            {% if listing.condition == 'new' %}
+                                <span class="badge badge-new">New</span>
+                            {% endif %}
+                            {% if listing.status == 'sold' %}
+                                <span class="badge badge-sold">Sold</span>
+                            {% endif %}
+                        </div>
+
+                        {% if listing.images.count() > 1 %}
+                        <button class="gallery-nav prev" onclick="prevImage()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="gallery-nav next" onclick="nextImage()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    {% if listing.images.count() > 1 %}
+                    <div class="gallery-thumbs">
+                        {% for image in listing.images.order_by('order') %}
+                        <div class="gallery-thumb {{ 'active' if image.is_primary }}" onclick="setImage('{{ url_for('uploaded_file', filename=image.filename) }}', this)">
+                            <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="listing-actions">
+                    <button class="action-btn {{ 'saved' if is_saved }}" onclick="toggleSave({{ listing.id }}, this)">
+                        <i class="{{ 'fas' if is_saved else 'far' }} fa-heart"></i>
+                        <span>{{ 'Saved' if is_saved else 'Save' }}</span>
+                    </button>
+                    <button class="action-btn" onclick="shareListing()">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Share</span>
+                    </button>
+                    <a href="{{ url_for('compare_tool') }}?id={{ listing.id }}" class="action-btn">
+                        <i class="fas fa-balance-scale"></i>
+                        <span>Compare</span>
+                    </a>
+                    <button class="action-btn" onclick="openReportModal()">
+                        <i class="fas fa-flag"></i>
+                        <span>Report</span>
+                    </button>
+                </div>
+
+                <!-- Listing Details -->
+                <div class="listing-details">
+                    <h1>{{ listing.title }}</h1>
+
+                    <div class="listing-meta-row">
+                        {% if listing.brand %}
+                        <div class="listing-meta-item">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ listing.brand }}</span>
+                        </div>
+                        {% endif %}
+                        {% if listing.model %}
+                        <div class="listing-meta-item">
+                            <i class="fas fa-cube"></i>
+                            <span>{{ listing.model }}</span>
+                        </div>
+                        {% endif %}
+                        {% if listing.year %}
+                        <div class="listing-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{ listing.year }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="listing-meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ listing.location or listing.state or 'Australia' }}</span>
+                        </div>
+                        <div class="listing-meta-item">
+                            <i class="fas fa-eye"></i>
+                            <span>{{ listing.views }} views</span>
+                        </div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="specs-section">
+                        <h3>Specifications</h3>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">Category</span>
+                                <span class="spec-value">{{ listing.category|replace('_', ' ')|title }}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Condition</span>
+                                <span class="spec-value">{{ listing.condition|replace('_', ' ')|title }}</span>
+                            </div>
+                            {% if listing.brand %}
+                            <div class="spec-item">
+                                <span class="spec-label">Brand</span>
+                                <span class="spec-value">{{ listing.brand }}</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.model %}
+                            <div class="spec-item">
+                                <span class="spec-label">Model</span>
+                                <span class="spec-value">{{ listing.model }}</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.year %}
+                            <div class="spec-item">
+                                <span class="spec-label">Year</span>
+                                <span class="spec-value">{{ listing.year }}</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.height %}
+                            <div class="spec-item">
+                                <span class="spec-label">Height</span>
+                                <span class="spec-value">{{ listing.height }} cm</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.weight %}
+                            <div class="spec-item">
+                                <span class="spec-label">Weight</span>
+                                <span class="spec-value">{{ listing.weight }} kg</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.battery_life %}
+                            <div class="spec-item">
+                                <span class="spec-label">Battery Life</span>
+                                <span class="spec-value">{{ listing.battery_life }} hours</span>
+                            </div>
+                            {% endif %}
+                            {% if listing.connectivity %}
+                            <div class="spec-item">
+                                <span class="spec-label">Connectivity</span>
+                                <span class="spec-value">{{ listing.connectivity }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="description-section">
+                        <h3>Description</h3>
+                        <div class="description-text">{{ listing.description }}</div>
+
+                        {% if listing.features %}
+                        <div class="features-list">
+                            {% for feature in listing.features.split(',') %}
+                            <span class="feature-tag">{{ feature.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Similar Listings -->
+                {% if similar %}
+                <div class="similar-section">
+                    <h3>Similar Robots</h3>
+                    <div class="similar-grid">
+                        {% for item in similar %}
+                        <a href="{{ url_for('listing_detail', id=item.id, slug=item.slug) }}" class="similar-card">
+                            <div class="similar-image">
+                                {% if item.primary_image %}
+                                    <img src="{{ url_for('uploaded_file', filename=item.primary_image) }}" alt="{{ item.title }}">
+                                {% endif %}
+                            </div>
+                            <div class="similar-content">
+                                <div class="similar-price">${{ "{:,.0f}".format(item.price) }}</div>
+                                <div class="similar-title">{{ item.title }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column - Contact Card -->
+            <div class="listing-sidebar">
+                <div class="contact-card">
+                    <!-- Price -->
+                    <div class="price-section">
+                        <div class="price-main">${{ "{:,.0f}".format(listing.price) }}</div>
+                        {% if listing.price_negotiable %}
+                        <div class="price-negotiable">Price is negotiable</div>
+                        {% endif %}
+                        {% if listing.original_price and listing.original_price > listing.price %}
+                        <div class="price-original">${{ "{:,.0f}".format(listing.original_price) }}</div>
+                        <span class="price-discount">{{ listing.discount_percentage }}% OFF</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Seller Info -->
+                    <div class="seller-info">
+                        <div class="seller-avatar">
+                            {% if listing.seller.avatar %}
+                                <img src="{{ url_for('uploaded_file', filename=listing.seller.avatar) }}" alt="">
+                            {% else %}
+                                {{ listing.seller.username[0].upper() }}
+                            {% endif %}
+                        </div>
+                        <div class="seller-details">
+                            <h4><a href="{{ url_for('user_profile', username=listing.seller.username) }}">{{ listing.seller.full_name }}</a></h4>
+                            <div class="seller-type">
+                                {{ listing.seller.seller_type|title }} Seller
+                                {% if listing.seller.is_verified %}
+                                <i class="fas fa-check-circle verified" title="Verified Seller"></i>
+                                {% endif %}
+                            </div>
+                            {% if listing.seller.rating %}
+                            <div class="seller-rating">
+                                <i class="fas fa-star"></i>
+                                <span>{{ "%.1f"|format(listing.seller.rating) }}</span>
+                                <span class="text-muted">({{ listing.seller.reviews_received.count() }} reviews)</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Contact Actions -->
+                    {% if listing.status == 'active' %}
+                    <div class="contact-actions">
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.id != listing.seller_id %}
+                            <a href="{{ url_for('contact_seller', listing_id=listing.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-envelope"></i> Contact Seller
+                            </a>
+                            {% if listing.seller.phone %}
+                            <button class="btn btn-outline btn-lg" onclick="revealPhone()">
+                                <i class="fas fa-phone"></i> <span id="phoneBtn">Show Phone</span>
+                            </button>
+                            {% endif %}
+                            {% else %}
+                            <a href="{{ url_for('edit_listing', id=listing.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-edit"></i> Edit Listing
+                            </a>
+                            <form action="{{ url_for('mark_sold', id=listing.id) }}" method="POST">
+                                <button type="submit" class="btn btn-success btn-lg" style="width: 100%;">
+                                    <i class="fas fa-check"></i> Mark as Sold
+                                </button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                        <a href="{{ url_for('login', next=request.url) }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-envelope"></i> Contact Seller
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline btn-lg">
+                            <i class="fas fa-user-plus"></i> Sign Up to Contact
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="contact-actions">
+                        <button class="btn btn-secondary btn-lg" disabled>
+                            This listing is no longer active
+                        </button>
+                    </div>
+                    {% endif %}
+
+                    <!-- Safety Message -->
+                    <div class="safety-message">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Stay safe!</strong> Meet in public places, never send money before seeing the robot, and use our secure messaging system.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" id="reportModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Report Listing</h3>
+            <button class="modal-close" onclick="closeReportModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form action="{{ url_for('report_listing', id=listing.id) }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Reason for report</label>
+                    <select name="reason" class="form-control" required>
+                        <option value="">Select a reason...</option>
+                        <option value="spam">Spam or misleading</option>
+                        <option value="fraud">Suspected fraud or scam</option>
+                        <option value="duplicate">Duplicate listing</option>
+                        <option value="wrong_category">Wrong category</option>
+                        <option value="offensive">Offensive content</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Additional details (optional)</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Please provide more details..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger">Submit Report</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Gallery
+    let currentImageIndex = 0;
+    const images = [
+        {% for image in listing.images.order_by('order') %}
+        "{{ url_for('uploaded_file', filename=image.filename) }}",
+        {% endfor %}
+    ];
+
+    function setImage(src, thumb) {
+        document.getElementById('mainImage').src = src;
+        document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+        if (thumb) thumb.classList.add('active');
+        currentImageIndex = images.indexOf(src);
+    }
+
+    function prevImage() {
+        if (images.length === 0) return;
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        setImage(images[currentImageIndex], document.querySelectorAll('.gallery-thumb')[currentImageIndex]);
+    }
+
+    function nextImage() {
+        if (images.length === 0) return;
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        setImage(images[currentImageIndex], document.querySelectorAll('.gallery-thumb')[currentImageIndex]);
+    }
+
+    // Toggle save
+    function toggleSave(listingId, button) {
+        fetch(`/api/listing/${listingId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/login?next=' + window.location.pathname;
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                const icon = button.querySelector('i');
+                const text = button.querySelector('span');
+                if (data.saved) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.classList.add('saved');
+                    text.textContent = 'Saved';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.classList.remove('saved');
+                    text.textContent = 'Save';
+                }
+            }
+        });
+    }
+
+    // Share
+    function shareListing() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ listing.title }}',
+                text: 'Check out this robot on BotSales!',
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copied to clipboard!');
+        }
+    }
+
+    // Phone reveal
+    function revealPhone() {
+        const btn = document.getElementById('phoneBtn');
+        btn.textContent = '{{ listing.seller.phone or "No phone available" }}';
+    }
+
+    // Report modal
+    function openReportModal() {
+        {% if current_user.is_authenticated %}
+        document.getElementById('reportModal').classList.add('active');
+        {% else %}
+        window.location.href = '/login?next=' + window.location.pathname;
+        {% endif %}
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportModal').classList.remove('active');
+    }
+
+    // Close modal on outside click
+    document.getElementById('reportModal').addEventListener('click', function(e) {
+        if (e.target === this) closeReportModal();
+    });
+</script>
+{% endblock %}

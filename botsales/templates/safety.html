@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Trust & Safety | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .safety-page { padding: 3rem 0; }
+    .safety-header { text-align: center; max-width: 700px; margin: 0 auto 3rem; }
+    .safety-header h1 { font-size: 2rem; margin-bottom: 1rem; }
+    .safety-header p { color: var(--gray-600); font-size: 1.125rem; }
+
+    .safety-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .safety-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+    }
+
+    .safety-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+    }
+
+    .safety-card h3 i {
+        color: var(--primary);
+    }
+
+    .safety-card ul {
+        padding-left: 1.5rem;
+        color: var(--gray-600);
+    }
+
+    .safety-card li {
+        margin-bottom: 0.5rem;
+    }
+
+    .warning-box {
+        background: #FEF3C7;
+        border: 1px solid #F59E0B;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .warning-box h3 {
+        color: #D97706;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .safety-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="safety-page">
+        <div class="safety-header">
+            <h1>Trust & Safety</h1>
+            <p>Your safety is our priority. Learn how to buy and sell safely on BotSales.</p>
+        </div>
+
+        <div class="warning-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> Watch Out for Scams</h3>
+            <p>Never send payment before seeing the robot in person. If a deal seems too good to be true, it probably is. Report suspicious listings immediately.</p>
+        </div>
+
+        <div class="safety-grid">
+            <div class="safety-card">
+                <h3><i class="fas fa-shopping-cart"></i> Tips for Buyers</h3>
+                <ul>
+                    <li>Always meet in a public place to inspect the robot</li>
+                    <li>Test the robot before paying</li>
+                    <li>Never wire money or use gift cards as payment</li>
+                    <li>Use our in-app messaging to keep records</li>
+                    <li>Check seller reviews and verification status</li>
+                    <li>Trust your instincts - if something feels off, walk away</li>
+                </ul>
+            </div>
+
+            <div class="safety-card">
+                <h3><i class="fas fa-tag"></i> Tips for Sellers</h3>
+                <ul>
+                    <li>Meet buyers in safe, public locations</li>
+                    <li>Accept only cash or secure payment methods</li>
+                    <li>Never ship before receiving payment</li>
+                    <li>Keep copies of all communications</li>
+                    <li>Be wary of buyers offering more than asking price</li>
+                    <li>Report suspicious inquiries</li>
+                </ul>
+            </div>
+
+            <div class="safety-card">
+                <h3><i class="fas fa-shield-alt"></i> How We Protect You</h3>
+                <ul>
+                    <li>Verified seller program for trusted dealers</li>
+                    <li>Secure in-platform messaging</li>
+                    <li>Fraud detection systems</li>
+                    <li>24/7 report monitoring</li>
+                    <li>Masked phone numbers for privacy</li>
+                    <li>Dedicated trust & safety team</li>
+                </ul>
+            </div>
+
+            <div class="safety-card">
+                <h3><i class="fas fa-flag"></i> Report a Problem</h3>
+                <ul>
+                    <li>Click the "Report" button on any listing</li>
+                    <li>Email us at safety@botsales.com</li>
+                    <li>Call our hotline: 1800 BOT SAFE</li>
+                    <li>Reports are reviewed within 24 hours</li>
+                    <li>We take action against fraudulent accounts</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <p class="text-muted mb-3">Have questions about safety?</p>
+            <a href="{{ url_for('contact') }}" class="btn btn-primary">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

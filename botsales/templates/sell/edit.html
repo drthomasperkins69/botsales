@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Listing | BotSales{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+    <h1 class="mb-4">Edit Listing</h1>
+
+    <form action="{{ url_for('edit_listing', id=listing.id) }}" method="POST" enctype="multipart/form-data">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Basic Details</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Listing Title *</label>
+                    <input type="text" name="title" class="form-control" value="{{ listing.title }}" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="category" class="form-control" required>
+                            {% for value, label in categories %}
+                                <option value="{{ value }}" {{ 'selected' if listing.category == value }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Condition *</label>
+                        <select name="condition" class="form-control" required>
+                            {% for value, label in conditions %}
+                                <option value="{{ value }}" {{ 'selected' if listing.condition == value }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <select name="brand" class="form-control">
+                            <option value="">Select brand...</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand }}" {{ 'selected' if listing.brand == brand }}>{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" name="model" class="form-control" value="{{ listing.model or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="year" class="form-control" value="{{ listing.year or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price (AUD) *</label>
+                        <input type="number" name="price" class="form-control" value="{{ listing.price }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label class="checkbox-group">
+                        <input type="checkbox" name="negotiable" {{ 'checked' if listing.price_negotiable }}>
+                        <span>Price is negotiable</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea name="description" class="form-control" rows="6" required>{{ listing.description }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Specifications</h3>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" name="height" class="form-control" value="{{ listing.height or '' }}" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" name="weight" class="form-control" value="{{ listing.weight or '' }}" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Battery Life (hours)</label>
+                        <input type="number" name="battery_life" class="form-control" value="{{ listing.battery_life or '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Connectivity</label>
+                    <input type="text" name="connectivity" class="form-control" value="{{ listing.connectivity or '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Features</label>
+                    <input type="text" name="features" class="form-control" value="{{ listing.features or '' }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Location</h3>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Suburb/City</label>
+                        <input type="text" name="location" class="form-control" value="{{ listing.location or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select name="state" class="form-control">
+                            <option value="">Select...</option>
+                            <option value="NSW" {{ 'selected' if listing.state == 'NSW' }}>NSW</option>
+                            <option value="VIC" {{ 'selected' if listing.state == 'VIC' }}>VIC</option>
+                            <option value="QLD" {{ 'selected' if listing.state == 'QLD' }}>QLD</option>
+                            <option value="WA" {{ 'selected' if listing.state == 'WA' }}>WA</option>
+                            <option value="SA" {{ 'selected' if listing.state == 'SA' }}>SA</option>
+                            <option value="TAS" {{ 'selected' if listing.state == 'TAS' }}>TAS</option>
+                            <option value="ACT" {{ 'selected' if listing.state == 'ACT' }}>ACT</option>
+                            <option value="NT" {{ 'selected' if listing.state == 'NT' }}>NT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Postcode</label>
+                        <input type="text" name="postcode" class="form-control" value="{{ listing.postcode or '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Add More Photos</h3>
+                <input type="file" name="images" multiple accept="image/*" class="form-control">
+                <p class="form-hint">Upload additional photos (max 5MB each)</p>
+            </div>
+        </div>
+
+        <div class="d-flex justify-between">
+            <a href="{{ url_for('listing_detail', id=listing.id) }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

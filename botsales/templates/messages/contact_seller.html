@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Seller - {{ listing.title }} | BotSales{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-page {
+        padding: 2rem 0;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .listing-preview {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .preview-image {
+        width: 120px;
+        height: 90px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--gray-200);
+        flex-shrink: 0;
+    }
+
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-info h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .preview-info h3 a {
+        color: var(--gray-900);
+    }
+
+    .preview-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .preview-seller {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .contact-form {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+    }
+
+    .contact-form h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quick-messages {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .quick-message {
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: 0.8125rem;
+        color: var(--gray-700);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-message:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .form-actions .btn {
+        flex: 1;
+    }
+
+    .safety-note {
+        display: flex;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        margin-top: 1.5rem;
+        font-size: 0.8125rem;
+        color: var(--gray-600);
+    }
+
+    .safety-note i {
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="contact-page">
+        <div class="listing-preview">
+            <div class="preview-image">
+                {% if listing.primary_image %}
+                    <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="">
+                {% endif %}
+            </div>
+            <div class="preview-info">
+                <h3><a href="{{ url_for('listing_detail', id=listing.id) }}">{{ listing.title }}</a></h3>
+                <div class="preview-price">${{ "{:,.0f}".format(listing.price) }}</div>
+                <div class="preview-seller">
+                    <i class="fas fa-user"></i>
+                    {{ listing.seller.full_name }}
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2>Send a Message</h2>
+
+            <div class="quick-messages">
+                <button type="button" class="quick-message" onclick="setMessage('Hi, is this still available?')">Is this available?</button>
+                <button type="button" class="quick-message" onclick="setMessage('Hi, what is the lowest price you would accept for this?')">What\'s your best price?</button>
+                <button type="button" class="quick-message" onclick="setMessage('Hi, I\'m interested in this robot. Can we arrange a time to see it?')">Can I view it?</button>
+                <button type="button" class="quick-message" onclick="setMessage('Hi, can you tell me more about the condition of this robot?')">Tell me more about condition</button>
+            </div>
+
+            <form action="{{ url_for('send_message') }}" method="POST">
+                <input type="hidden" name="recipient_id" value="{{ listing.seller_id }}">
+                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+
+                <div class="form-group">
+                    <label class="form-label">Your Message</label>
+                    <textarea name="body" id="messageBody" class="form-control" rows="5" placeholder="Write your message to the seller..." required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('listing_detail', id=listing.id) }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+            </form>
+
+            <div class="safety-note">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <strong>Stay safe!</strong> Keep all communications within BotSales. Never send money before seeing the item in person.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function setMessage(text) {
+        document.getElementById('messageBody').value = text;
+    }
+</script>
+{% endblock %}

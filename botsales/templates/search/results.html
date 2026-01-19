@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if query %}Search: {{ query }} - {% endif %}Buy Robots | BotSales
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-page {
+        display: flex;
+        gap: 2rem;
+        padding: 2rem 0;
+    }
+
+    /* Filters Sidebar */
+    .filters-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+    }
+
+    .filters-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .filters-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .clear-filters {
+        font-size: 0.875rem;
+        color: var(--primary);
+    }
+
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-700);
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+    }
+
+    .price-range {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .price-range input {
+        flex: 1;
+    }
+
+    .filter-checkboxes {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .filter-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        cursor: pointer;
+    }
+
+    .filter-checkbox:hover {
+        color: var(--gray-900);
+    }
+
+    .filter-checkbox input {
+        width: auto;
+    }
+
+    .filter-count {
+        margin-left: auto;
+        color: var(--gray-400);
+        font-size: 0.75rem;
+    }
+
+    .apply-filters {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .apply-filters:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Results Area */
+    .results-area {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .results-count {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .results-count strong {
+        color: var(--gray-900);
+    }
+
+    .results-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .sort-select {
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        background: var(--white);
+    }
+
+    .view-toggle {
+        display: flex;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .view-toggle button {
+        padding: 0.5rem 0.75rem;
+        background: var(--white);
+        border: none;
+        color: var(--gray-500);
+        cursor: pointer;
+    }
+
+    .view-toggle button.active {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    /* Listings Grid */
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .listings-grid.list-view {
+        grid-template-columns: 1fr;
+    }
+
+    .listing-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .listing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .list-view .listing-card {
+        flex-direction: row;
+    }
+
+    .listing-image {
+        position: relative;
+        aspect-ratio: 4/3;
+        background: var(--gray-200);
+        overflow: hidden;
+    }
+
+    .list-view .listing-image {
+        width: 280px;
+        flex-shrink: 0;
+        aspect-ratio: auto;
+        height: 200px;
+    }
+
+    .listing-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .listing-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+    }
+
+    .listing-image-placeholder i {
+        font-size: 3rem;
+        color: var(--gray-400);
+    }
+
+    .listing-badges {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-featured {
+        background: var(--accent);
+        color: var(--white);
+    }
+
+    .badge-new {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .badge-verified {
+        background: var(--info);
+        color: var(--white);
+    }
+
+    .listing-save {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 2rem;
+        height: 2rem;
+        background: var(--white);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-400);
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .listing-save:hover,
+    .listing-save.saved {
+        color: var(--danger);
+    }
+
+    .listing-content {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .listing-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .listing-price-negotiable {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+
+    .listing-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .list-view .listing-title {
+        font-size: 1.125rem;
+        -webkit-line-clamp: 1;
+    }
+
+    .listing-description {
+        display: none;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: 0.75rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .list-view .listing-description {
+        display: -webkit-box;
+    }
+
+    .listing-specs {
+        display: none;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .list-view .listing-specs {
+        display: flex;
+    }
+
+    .listing-spec {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: var(--gray-600);
+    }
+
+    .listing-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        font-size: 0.8125rem;
+        color: var(--gray-500);
+        margin-top: auto;
+    }
+
+    .listing-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Active filters */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .active-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        font-size: 0.8125rem;
+    }
+
+    .active-filter button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+    }
+
+    /* Save search */
+    .save-search-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+
+    .save-search-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    /* Empty state */
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+    }
+
+    .no-results i {
+        font-size: 4rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+
+    .no-results h3 {
+        font-size: 1.25rem;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .no-results p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Mobile filters */
+    .mobile-filter-btn {
+        display: none;
+        padding: 0.75rem 1.5rem;
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    @media (max-width: 1024px) {
+        .listings-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .search-page {
+            flex-direction: column;
+        }
+
+        .filters-sidebar {
+            display: none;
+            width: 100%;
+        }
+
+        .filters-sidebar.active {
+            display: block;
+        }
+
+        .mobile-filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .listings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .list-view .listing-card {
+            flex-direction: column;
+        }
+
+        .list-view .listing-image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4/3;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-page">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <form class="filters-card" id="filtersForm" action="{{ url_for('search') }}" method="GET">
+                <div class="filters-header">
+                    <h3>Filters</h3>
+                    <a href="{{ url_for('search') }}" class="clear-filters">Clear All</a>
+                </div>
+
+                <!-- Search query (hidden) -->
+                {% if query %}
+                <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+
+                <!-- Category -->
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        {% for value, label in categories %}
+                            <option value="{{ value }}" {{ 'selected' if filters.get('category') == value }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Brand -->
+                <div class="filter-group">
+                    <label>Brand</label>
+                    <select name="brand">
+                        <option value="">All Brands</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand }}" {{ 'selected' if filters.get('brand') == brand }}>{{ brand }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="filter-group">
+                    <label>Price Range</label>
+                    <div class="price-range">
+                        <input type="number" name="min_price" placeholder="Min" value="{{ filters.get('min_price', '') }}">
+                        <span>-</span>
+                        <input type="number" name="max_price" placeholder="Max" value="{{ filters.get('max_price', '') }}">
+                    </div>
+                </div>
+
+                <!-- Condition -->
+                <div class="filter-group">
+                    <label>Condition</label>
+                    <select name="condition">
+                        <option value="">Any Condition</option>
+                        {% for value, label in conditions %}
+                            <option value="{{ value }}" {{ 'selected' if filters.get('condition') == value }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Year Range -->
+                <div class="filter-group">
+                    <label>Year</label>
+                    <div class="price-range">
+                        <input type="number" name="min_year" placeholder="From" value="{{ filters.get('min_year', '') }}">
+                        <span>-</span>
+                        <input type="number" name="max_year" placeholder="To" value="{{ filters.get('max_year', '') }}">
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="filter-group">
+                    <label>State</label>
+                    <select name="state">
+                        <option value="">All States</option>
+                        {% for state in states %}
+                            <option value="{{ state }}" {{ 'selected' if filters.get('state') == state }}>{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Seller Type -->
+                <div class="filter-group">
+                    <label>Seller Type</label>
+                    <select name="seller_type">
+                        <option value="">All Sellers</option>
+                        <option value="private" {{ 'selected' if filters.get('seller_type') == 'private' }}>Private Seller</option>
+                        <option value="dealer" {{ 'selected' if filters.get('seller_type') == 'dealer' }}>Dealer</option>
+                        <option value="manufacturer" {{ 'selected' if filters.get('seller_type') == 'manufacturer' }}>Manufacturer</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="apply-filters">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+            </form>
+        </aside>
+
+        <!-- Results Area -->
+        <div class="results-area">
+            <!-- Results Header -->
+            <div class="results-header">
+                <div>
+                    <span class="results-count">
+                        <strong>{{ listings.total }}</strong> robots found
+                        {% if query %} for "{{ query }}"{% endif %}
+                    </span>
+                </div>
+
+                <div class="results-actions">
+                    <button class="mobile-filter-btn" onclick="toggleFilters()">
+                        <i class="fas fa-filter"></i> Filters
+                    </button>
+
+                    <select class="sort-select" onchange="updateSort(this.value)">
+                        <option value="newest" {{ 'selected' if filters.get('sort') == 'newest' }}>Newest First</option>
+                        <option value="oldest" {{ 'selected' if filters.get('sort') == 'oldest' }}>Oldest First</option>
+                        <option value="price_low" {{ 'selected' if filters.get('sort') == 'price_low' }}>Price: Low to High</option>
+                        <option value="price_high" {{ 'selected' if filters.get('sort') == 'price_high' }}>Price: High to Low</option>
+                    </select>
+
+                    <div class="view-toggle">
+                        <button id="gridViewBtn" class="active" onclick="setView('grid')">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="listViewBtn" onclick="setView('list')">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                    <button class="save-search-btn" onclick="saveSearch()">
+                        <i class="fas fa-bell"></i> Save Search
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Active Filters -->
+            {% set active_filters = [] %}
+            {% if filters.get('category') %}{% set _ = active_filters.append(('category', filters.get('category'))) %}{% endif %}
+            {% if filters.get('brand') %}{% set _ = active_filters.append(('brand', filters.get('brand'))) %}{% endif %}
+            {% if filters.get('condition') %}{% set _ = active_filters.append(('condition', filters.get('condition'))) %}{% endif %}
+            {% if filters.get('state') %}{% set _ = active_filters.append(('state', filters.get('state'))) %}{% endif %}
+
+            {% if active_filters %}
+            <div class="active-filters">
+                {% for key, value in active_filters %}
+                <span class="active-filter">
+                    {{ value }}
+                    <button onclick="removeFilter('{{ key }}')"><i class="fas fa-times"></i></button>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Listings Grid -->
+            {% if listings.items %}
+            <div class="listings-grid" id="listingsGrid">
+                {% for listing in listings.items %}
+                <a href="{{ url_for('listing_detail', id=listing.id, slug=listing.slug) }}" class="listing-card">
+                    <div class="listing-image">
+                        {% if listing.primary_image %}
+                            <img src="{{ url_for('uploaded_file', filename=listing.primary_image) }}" alt="{{ listing.title }}" loading="lazy">
+                        {% else %}
+                            <div class="listing-image-placeholder">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                        {% endif %}
+                        <div class="listing-badges">
+                            {% if listing.is_featured %}
+                                <span class="badge badge-featured">Featured</span>
+                            {% endif %}
+                            {% if listing.condition == 'new' %}
+                                <span class="badge badge-new">New</span>
+                            {% endif %}
+                            {% if listing.seller.is_verified %}
+                                <span class="badge badge-verified">Verified</span>
+                            {% endif %}
+                        </div>
+                        <button class="listing-save" onclick="event.preventDefault(); toggleSave({{ listing.id }}, this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="listing-content">
+                        <div class="listing-price">
+                            ${{ "{:,.0f}".format(listing.price) }}
+                            {% if listing.price_negotiable %}
+                                <span class="listing-price-negotiable">Negotiable</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="listing-title">{{ listing.title }}</h3>
+                        <p class="listing-description">{{ listing.description[:150] }}...</p>
+                        <div class="listing-specs">
+                            {% if listing.brand %}
+                            <span class="listing-spec"><i class="fas fa-tag"></i> {{ listing.brand }}</span>
+                            {% endif %}
+                            {% if listing.year %}
+                            <span class="listing-spec"><i class="fas fa-calendar"></i> {{ listing.year }}</span>
+                            {% endif %}
+                            {% if listing.condition %}
+                            <span class="listing-spec"><i class="fas fa-check-circle"></i> {{ listing.condition|replace('_', ' ')|title }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="listing-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> {{ listing.state or listing.location or 'Australia' }}</span>
+                            <span><i class="fas fa-clock"></i> {{ listing.created_at.strftime('%d %b') }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if listings.pages > 1 %}
+            <div class="pagination">
+                {% if listings.has_prev %}
+                    <a href="{{ url_for('search', page=listings.prev_num, **filters) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="disabled"><i class="fas fa-chevron-left"></i></span>
+                {% endif %}
+
+                {% for page_num in listings.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == listings.page %}
+                            <span class="active">{{ page_num }}</span>
+                        {% else %}
+                            <a href="{{ url_for('search', page=page_num, **filters) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span>...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if listings.has_next %}
+                    <a href="{{ url_for('search', page=listings.next_num, **filters) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="disabled"><i class="fas fa-chevron-right"></i></span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- No Results -->
+            <div class="no-results">
+                <i class="fas fa-robot"></i>
+                <h3>No robots found</h3>
+                <p>Try adjusting your search or filters to find what you're looking for.</p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary">Clear All Filters</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleFilters() {
+        document.getElementById('filtersSidebar').classList.toggle('active');
+    }
+
+    function updateSort(value) {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', value);
+        window.location = url;
+    }
+
+    function setView(view) {
+        const grid = document.getElementById('listingsGrid');
+        const gridBtn = document.getElementById('gridViewBtn');
+        const listBtn = document.getElementById('listViewBtn');
+
+        if (view === 'list') {
+            grid.classList.add('list-view');
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        } else {
+            grid.classList.remove('list-view');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+        }
+
+        localStorage.setItem('listingsView', view);
+    }
+
+    function removeFilter(key) {
+        const url = new URL(window.location);
+        url.searchParams.delete(key);
+        window.location = url;
+    }
+
+    function saveSearch() {
+        // Redirect to alerts page with current filters
+        window.location = '/account/alerts?' + new URLSearchParams(window.location.search);
+    }
+
+    function toggleSave(listingId, button) {
+        fetch(`/api/listing/${listingId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/login?next=' + window.location.pathname;
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                const icon = button.querySelector('i');
+                if (data.saved) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.classList.add('saved');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.classList.remove('saved');
+                }
+            }
+        });
+    }
+
+    // Restore view preference
+    const savedView = localStorage.getItem('listingsView');
+    if (savedView) {
+        setView(savedView);
+    }
+</script>
+{% endblock %}
